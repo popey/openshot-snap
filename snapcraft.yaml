@@ -1,0 +1,23 @@
+name: openshot
+version: "2.1.0"
+summary: OpenShot Video Editor
+description: |
+  OpenShot Video Editor is a free, open-source video editor for Linux.
+  OpenShot can take your videos, photos, and music files and help you
+  create the film you have always dreamed of. Easily add sub-titles,
+  transitions, and effects, and then export your film to DVD, YouTube,
+  Vimeo, Xbox 360, and many other common formats
+
+confinement: strict
+
+apps:
+  openshot:
+    command: desktop-launch $SNAP/bin/openshot-qt
+
+parts:
+  openshot:
+    source: https://launchpad.net/openshot/2.1/2.1.0/+download/openshot-qt-2.1.0.tar.gz
+    after: [desktop-qt5]
+    plugin: python3
+    stage-packages:
+      - python3-pyqt5
