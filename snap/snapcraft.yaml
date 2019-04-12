@@ -28,6 +28,7 @@ parts:
   libopenshot-audio:
     source: https://github.com/OpenShot/libopenshot-audio.git
     source-type: git
+    source-tag: "v0.1.8"
     plugin: cmake
     build-environment:
       - CFLAGS: "$CFLAGS -I$SNAPCRAFT_STAGE/usr/include"
@@ -46,11 +47,11 @@ parts:
     after: [libopenshot-audio]
     source: https://git.launchpad.net/libopenshot
     source-type: git
+    source-tag: "v0.2.3"
     plugin: cmake
     build-environment:
       - CFLAGS: "$CFLAGS -I$SNAPCRAFT_STAGE/usr/include"
       - LDFLAGS: "$LDFLAGS -L$SNAPCRAFT_STAGE/usr/lib"
-      - LIBOPENSHOT_AUDIO_INCLUDE_DIR: "$CFLAGS -I$SNAPCRAFT_STAGE/usr/include/libopenshot-audio"
     configflags: [
       "-DUSE_SYSTEM_JSONCPP:BOOL='ON'", 
       "-DMAGICKCORE_HDRI_ENABLE='1'",
@@ -60,7 +61,8 @@ parts:
     override-build: |
       set -x
       env 
-      cmake -DUSE_SYSTEM_JSONCPP:BOOL=ON -DMAGICKCORE_HDRI_ENABLE=1 -DMAGICKCORE_QUANTUM_DEPTH=16 -DENABLE_RUBY=OFF -Wno-dev ../src 
+      # This should be LIBOPENSHOT_AUDIO_INCLUDE_DIR, but it only works if you set LIBOPENSHOT_AUDIO_BASE_DIR
+      cmake -DUSE_SYSTEM_JSONCPP:BOOL=ON -DMAGICKCORE_HDRI_ENABLE=1 -DMAGICKCORE_QUANTUM_DEPTH=16 -DENABLE_RUBY=OFF -Wno-dev -DLIBOPENSHOT_AUDIO_BASE_DIR="$SNAPCRAFT_STAGE/usr/include/libopenshot-audio" ../src
       make VERBOSE=1
     build-packages:
       - ffmpeg
