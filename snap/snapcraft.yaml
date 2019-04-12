@@ -1,0 +1,117 @@
+name: openshot
+version: latest
+base: core18
+summary: OpenShot Video Editor
+description: |
+  OpenShot Video Editor is a free, open-source video editor for Linux.
+  OpenShot can take your videos, photos, and music files and help you
+  create the film you have always dreamed of. Easily add sub-titles,
+  transitions, and effects, and then export your film to DVD, YouTube,
+  Vimeo, Xbox 360, and many other common formats
+
+confinement: strict
+
+apps:
+  openshot:
+    environment:
+      LD_LIBRARY_PATH: "$LD_LIBRARY_PATH:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio"
+      PYTHONPATH: $SNAP/lib/python3.6/site-packages/openshot_qt/classes:$SNAP/lib/python3.6/site-packages/openshot_qt:$SNAP/usr/lib/python3.6/site-packages:$SNAP/usr/lib/python3/dist-packages:$PYTHONPATH
+    command: desktop-launch $SNAP/bin/openshot-qt
+    plugs:
+      - x11
+      - opengl
+      - pulseaudio
+      - desktop
+      - desktop-legacy
+
+parts:
+  libopenshot-audio:
+    source: https://github.com/OpenShot/libopenshot-audio.git
+    source-type: git
+    plugin: cmake
+    build-environment:
+      - CFLAGS: "$CFLAGS -I$SNAPCRAFT_STAGE/usr/include"
+    configflags: [
+      "-DCMAKE_INSTALL_PREFIX:PATH='/usr'", 
+      "-Wno-dev" ]
+    build-packages:
+      - libunittest++-dev
+      - swig
+      - libasound2-dev
+      - libfreetype6-dev
+      - libxcursor-dev
+      - libxinerama-dev
+      - libxrandr-dev
+  libopenshot:
+    after: [libopenshot-audio]
+    source: https://git.launchpad.net/libopenshot
+    source-type: git
+    plugin: cmake
+    build-environment:
+      - CFLAGS: "$CFLAGS -I$SNAPCRAFT_STAGE/usr/include"
+      - LDFLAGS: "$LDFLAGS -L$SNAPCRAFT_STAGE/usr/lib"
+      - LIBOPENSHOT_AUDIO_INCLUDE_DIR: "$CFLAGS -I$SNAPCRAFT_STAGE/usr/include/libopenshot-audio"
+    configflags: [
+      "-DUSE_SYSTEM_JSONCPP:BOOL='ON'", 
+      "-DMAGICKCORE_HDRI_ENABLE='1'",
+      "-DMAGICKCORE_QUANTUM_DEPTH='16'",
+      "-DENABLE_RUBY='OFF'",
+      "-Wno-dev" ]
+    override-build: |
+      set -x
+      env 
+      cmake -DUSE_SYSTEM_JSONCPP:BOOL=ON -DMAGICKCORE_HDRI_ENABLE=1 -DMAGICKCORE_QUANTUM_DEPTH=16 -DENABLE_RUBY=OFF -Wno-dev ../src 
+      make VERBOSE=1
+    build-packages:
+      - ffmpeg
+      - libavcodec-dev
+      - libavformat-dev
+      - libswscale-dev
+      - libavresample-dev
+      - libavdevice-dev
+      - libavfilter-dev
+      - libpostproc-dev
+      - libavutil-dev
+      - libfdk-aac-dev
+      - libjsoncpp-dev
+      - libmagick++-dev
+      - libunittest++-dev
+      - libzmq3-dev
+      - pkg-config
+      - python3-dev
+      - qtbase5-dev
+      - qtmultimedia5-dev
+      - swig
+  openshot:
+    source: https://git.launchpad.net/openshot
+    source-type: git
+    after: [desktop-qt5, libopenshot]
+    plugin: python
+    python-version: python3
+    stage-packages:
+      - python3-pyqt5
+  desktop-qt5:
+    build-packages:
+    - build-essential
+    - qtbase5-dev
+    - dpkg-dev
+    make-parameters:
+    - FLAVOR=qt5
+    plugin: make
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: qt
+    stage-packages:
+    - libxkbcommon0
+    - ttf-ubuntu-font-family
+    - dmz-cursor-theme
+    - light-themes
+    - adwaita-icon-theme
+    - gnome-themes-standard
+    - shared-mime-info
+    - libqt5gui5
+    - libgdk-pixbuf2.0-0
+    - libqt5svg5
+    - try:
+      - appmenu-qt5
+    - locales-all
+    - xdg-user-dirs
