@@ -28,10 +28,11 @@ parts:
   libopenshot-audio:
     source: https://github.com/OpenShot/libopenshot-audio.git
     source-type: git
-    source-tag: "v0.1.8"
+    source-tag: "v0.1.9"
     plugin: cmake
     build-environment:
       - CFLAGS: "$CFLAGS -I$SNAPCRAFT_STAGE/usr/include"
+      - LDFLAGS: "$LDFLAGS -L$SNAPCRAFT_STAGE/usr/lib"
     configflags: [
       "-DCMAKE_INSTALL_PREFIX:PATH='/usr'", 
       "-Wno-dev" ]
@@ -45,9 +46,9 @@ parts:
       - libxrandr-dev
   libopenshot:
     after: [libopenshot-audio]
-    source: https://git.launchpad.net/libopenshot
+    source: https://github.com/OpenShot/libopenshot.git
     source-type: git
-    source-tag: "v0.2.3"
+    source-tag: "v0.2.4"
     plugin: cmake
     build-environment:
       - CFLAGS: "$CFLAGS -I$SNAPCRAFT_STAGE/usr/include"
@@ -85,9 +86,10 @@ parts:
       - qtmultimedia5-dev
       - swig
   openshot:
-    source: https://git.launchpad.net/openshot
+    source: https://github.com/OpenShot/openshot-qt
     source-type: git
-    after: [desktop-qt5, libopenshot]
+    source-tag: "v2.5.0"
+    after: [desktop-qt5, libopenshot, libopenshot-audio]
     plugin: python
     python-version: python3
     stage-packages:
